@@ -24,11 +24,22 @@ app.use(express.json())
 app.use(cors())
 
 const signUpSchema = joi.object({
-    name: joi.string().required(),
-    email: joi.string().email().required(),
-    password: joi.string().required(),
-    confirmPassword: joi.ref('password')
-  })
+  name: joi.string().required(),
+  email: joi.string().email().required(),
+  password: joi.string().required(),
+  confirmPassword: joi.ref('password')
+})
+
+const signInSchema = joi.object({
+  email: joi.string().email().required(),
+  password: joi.string().required()
+})
+
+const transactionSchema = joi.object({
+  type: joi.string().required(),
+  description: joi.string().required(),
+  value: joi.number().required()
+});
 
 app.post('/api/sing-up', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body
@@ -38,14 +49,14 @@ app.post('/api/sing-up', async (req, res) => {
       email,
       password,
       confirmPassword
-    }, {abortEarly: false})
+    }, { abortEarly: false })
   } catch (error) {
     return res.status(422).send('Erro ao preencher cadastro')
   }
   try {
     const user = await db.collection('users').findOne({ email })
     if (user) {
-      alert('email já cadastrado')
+      console.error('email já cadastrado')
       return res.sendStatus(400)
     }
     const SALT = 10
@@ -65,8 +76,14 @@ app.post('/api/sing-up', async (req, res) => {
 
 app.post('/api/sign-in', async (req, res) => {
   const { email, password } = req.body
-  console.log("email", email)
-  console.log("password", password)
+  try {
+    await signInSchema.validateAsync({
+      email,
+      password
+    }, { abortEarly: false })
+  } catch (error) {
+    return res.status(422).send('Usuário ou email inválido')
+  }
 
   try {
     const user = await db.collection('users').findOne({ email })
@@ -113,7 +130,7 @@ app.get('/api/statement', async (req, res) => {
 
 app.post('/api/statement', async (req, res) => {
   const { authorization } = req.headers
-  const {type, description, value} = req.body
+  const { type, description, value } = req.body
   const token = authorization?.replace('Bearer', '').trim()
   if (!token) return res.status(401).send("No token.")
 
@@ -138,7 +155,7 @@ app.post('/api/statement', async (req, res) => {
 
 })
 
-const port = 5005;
+const port = 4009;
 app.listen(port, () => {
   console.log(`rodando na porta ${port}`)
 })
