@@ -23,8 +23,25 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
+const signUpSchema = joi.object({
+    name: joi.string().required(),
+    email: joi.string().email().required(),
+    password: joi.string().required(),
+    confirmPassword: joi.ref('password')
+  })
+
 app.post('/api/sing-up', async (req, res) => {
-  const { name, email, password, confirmPassord } = req.body
+  const { name, email, password, confirmPassword } = req.body
+  try {
+    await signUpSchema.validateAsync({
+      name,
+      email,
+      password,
+      confirmPassword
+    }, {abortEarly: false})
+  } catch (error) {
+    return res.status(422).send('Erro ao preencher cadastro')
+  }
   try {
     const user = await db.collection('users').findOne({ email })
     if (user) {
@@ -121,7 +138,7 @@ app.post('/api/statement', async (req, res) => {
 
 })
 
-const port = 5000;
+const port = 5005;
 app.listen(port, () => {
   console.log(`rodando na porta ${port}`)
 })
