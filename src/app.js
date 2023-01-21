@@ -23,13 +23,8 @@ const app = express()
 app.use(express.json())
 app.use(cors())
 
-console.log("aqui")
 app.post('/api/sing-up', async(req,res) => {
-  console.log("aqui dentro 1")
-
   const {name, email, password, confirmPassord} = req.body
-  console.log("aqui dentro 1")
-
   try {
     const user = await db.collection('users').findOne({email})
     if(user){
@@ -49,7 +44,33 @@ app.post('/api/sing-up', async(req,res) => {
     console.error('erro', error)
     return res.sendStatus(500)
   }
+})
 
+app.post('/api/sign-in', async(req, res) => {
+  const {email, password} = req.body
+  console.log("email",email)
+  console.log("password",password)
+
+  try {
+    const user = await db.collection('users').findOne({email})
+    console.log("user",user)
+    if(!user) return res.sendStatus(404)
+      console.log("cheguei aqui")
+
+    if(bcrypt.compareSync(password,user.password)){
+      const token = uuid()
+      console.log("no token",token)
+      await db.collection('sessions').insertOne({
+        token,
+        userId: user._id
+      })
+      console.log("pos session")
+      return res.send({token, userId:user._id})
+    }
+    return res.sendStatus(200)
+  } catch (error) {
+    res.sendStatus(500)
+  }
 })
 
 
