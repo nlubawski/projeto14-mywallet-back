@@ -41,7 +41,7 @@ const transactionSchema = joi.object({
   value: joi.number().required()
 });
 
-app.post('/api/sing-up', async (req, res) => {
+app.post('/api/sign-up', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body
   try {
     await signUpSchema.validateAsync({
