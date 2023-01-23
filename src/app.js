@@ -10,7 +10,8 @@ app.use(cors())
 app.use(authRouter)
 app.use(transactionRouter)
 
-const port = 4009;
+const port = process.env.PORT || 4009;
+
 app.listen(port, () => {
   console.log(`rodando na porta ${port}`)
 })
