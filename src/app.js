@@ -1,32 +1,13 @@
-import express, { application } from 'express'
+import express from 'express'
 import cors from 'cors'
-import joi from 'joi'
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
 import db from './dataBase/db.js'
-
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 
-const signUpSchema = joi.object({
-  name: joi.string().required(),
-  email: joi.string().email().required(),
-  password: joi.string().required(),
-  confirmPassword: joi.ref('password')
-})
-
-const signInSchema = joi.object({
-  email: joi.string().email().required(),
-  password: joi.string().required()
-})
-
-const transactionSchema = joi.object({
-  type: joi.string().required(),
-  description: joi.string().required(),
-  value: joi.number().required()
-});
 
 app.post('/api/sign-up', async (req, res) => {
   const { name, email, password, confirmPassword } = req.body
