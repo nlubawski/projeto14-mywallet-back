@@ -51,3 +51,29 @@ export async function deleteTransaction(req, res){
     return res.sendStatus(500)
   }
 }
+
+export async function editTransaction(req, res){
+  const { type, description, value } = req.body
+  const {id} = req.params
+  try {
+    await transactionSchema.validateAsync({
+      type,
+      description,
+      value
+    }, { abortEarly: false })
+  } catch (error) {
+    return res.status(422).send('Erro ao preencher transacao')
+  }
+  const {user} = res.locals
+  try {
+    await db.collection('statements').updateOne({_id: ObjectId(id)}, {$set: {
+      type,
+      value,
+      description,
+      date: dayjs().format("DD/MM")
+    }})
+    return res.sendStatus(201)
+  } catch (error) {
+    return res.sendStatus(500)
+  }
+}
