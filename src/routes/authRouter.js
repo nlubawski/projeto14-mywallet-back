@@ -1,77 +1,10 @@
 import {Router} from 'express'
-import bcrypt from 'bcrypt'
-import { v4 as uuid } from 'uuid'
-import db from './../dataBase/db.js'
+import { signIn, signUp } from '../controllers/authController.js'
 
 const authRouter = Router()
 
-authRouter.post('/api/sign-up', async (req, res) => {
-  const { name, email, password, confirmPassword } = req.body
-  try {
-    await signUpSchema.validateAsync({
-      name,
-      email,
-      password,
-      confirmPassword
-    }, { abortEarly: false })
-  } catch (error) {
-    return res.status(422).send('Erro ao preencher cadastro')
-  }
-  try {
-    const user = await db.collection('users').findOne({ email })
-    if (user) {
-      console.error('email já cadastrado')
-      return res.sendStatus(400)
-    }
-    const SALT = 10
-    const hash = bcrypt.hashSync(password, SALT)
-    await db.collection('users').insertOne({
-      name,
-      email,
-      password: hash
-    })
-    return res.sendStatus(201)
+authRouter.post('/api/sign-up', signUp)
 
-  } catch (error) {
-    console.error('erro', error)
-    return res.sendStatus(500)
-  }
-})
-
-authRouter.post('/api/sign-in', async (req, res) => {
-  const { email, password } = req.body
-  try {
-    await signInSchema.validateAsync({
-      email,
-      password
-    }, { abortEarly: false })
-  } catch (error) {
-    return res.status(422).send('Usuário ou email inválido')
-  }
-
-  try {
-    const user = await db.collection('users').findOne({ email })
-    console.log("user", user)
-    if (!user) return res.sendStatus(404)
-    console.log("cheguei aqui eee")
-
-    if (user && bcrypt.compareSync(password, user.password)) {
-      const token = uuid()
-      await db.collection('sessions').insertOne({
-        token,
-        userId: user._id
-      })
-      const data = {
-        token,
-        name: user.name,
-        userId: user._id
-      }
-      return res.send(data);
-    }
-    return res.sendStatus(200)
-  } catch (error) {
-    res.sendStatus(500)
-  }
-})
+authRouter.post('/api/sign-in', signIn)
 
 export default authRouter
