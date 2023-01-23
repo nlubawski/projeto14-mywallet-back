@@ -89,17 +89,20 @@ app.post('/api/sign-in', async (req, res) => {
     const user = await db.collection('users').findOne({ email })
     console.log("user", user)
     if (!user) return res.sendStatus(404)
-    console.log("cheguei aqui")
+    console.log("cheguei aqui eee")
 
-    if (bcrypt.compareSync(password, user.password)) {
+    if (user && bcrypt.compareSync(password, user.password)) {
       const token = uuid()
-      console.log("no token", token)
       await db.collection('sessions').insertOne({
         token,
         userId: user._id
       })
-      console.log("pos session")
-      return res.send({ token, userId: user._id })
+      const data = {
+        token,
+        name: user.name,
+        userId: user._id
+      }
+      return res.send(data);
     }
     return res.sendStatus(200)
   } catch (error) {
