@@ -1,23 +1,10 @@
 import express, { application } from 'express'
-import { MongoClient } from 'mongodb'
-import dotenv from 'dotenv'
 import cors from 'cors'
 import joi from 'joi'
-import dayjs from 'dayjs'
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
+import db from './dataBase/db.js'
 
-dotenv.config()
-const mongoClient = new MongoClient(process.env.DATABASE_URL)
-
-let db;
-try {
-  await mongoClient.connect()
-  db = mongoClient.db()
-  console.log("deu bom")
-} catch (error) {
-  console.error(error)
-}
 
 const app = express()
 app.use(express.json())
