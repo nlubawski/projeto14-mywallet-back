@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
 import db from './../dataBase/db.js'
+import { signInSchema, signUpSchema } from '../schemas/authSchema.js'
 
 export async function signUp(req,res){
     const { name, email, password, confirmPassword } = req.body
