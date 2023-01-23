@@ -1,5 +1,6 @@
 import db from './../dataBase/db.js'
 import transactionSchema from './../schemas/transactionSchema.js'
+import dayjs from 'dayjs'
 
 export async function getStatement(req, res){
   const {user} = res.locals 
@@ -29,7 +30,8 @@ export async function postTransaction(req, res){
       type,
       value,
       description,
-      userId: user._id
+      userId: user._id,
+      date: dayjs().format("DD/MM")
     })
     return res.sendStatus(201)
   } catch (error) {
