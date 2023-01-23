@@ -1,6 +1,7 @@
 import db from './../dataBase/db.js'
 import transactionSchema from './../schemas/transactionSchema.js'
 import dayjs from 'dayjs'
+import { ObjectId } from 'mongodb'
 
 export async function getStatement(req, res){
   const {user} = res.locals 
@@ -34,6 +35,18 @@ export async function postTransaction(req, res){
       date: dayjs().format("DD/MM")
     })
     return res.sendStatus(201)
+  } catch (error) {
+    return res.sendStatus(500)
+  }
+}
+
+export async function deleteTransaction(req, res){
+  const { id } = req.params
+  try {
+    await db.collection('statements').deleteOne({
+      _id: ObjectId(id),
+    })
+    return res.sendStatus(200)
   } catch (error) {
     return res.sendStatus(500)
   }
