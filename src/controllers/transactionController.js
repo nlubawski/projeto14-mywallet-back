@@ -4,7 +4,6 @@ export async function getStatement(req, res){
   const {user} = res.locals 
   try {
     const statement = await db.collection('statements').find({ userId: user._id }).toArray()
-    console.log("statement aqui")
     return res.send(statement)
   } catch (error) {
     return res.sendStatus(500)
